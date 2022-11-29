@@ -157,9 +157,10 @@ int main(void)
 
     float *Left_Vector_h, *Right_Vector_h, *Left_Vector_d, *Right_Vector_d, *Res_h, *Res_d, *CPU;  // Pointer to host & device arrays
 
-    printf("Enter m n n k :\n");
+    printf("Enter m n k :\n");
 
-    scanf("%d %d %d %d",&Left_matrix_x,&Left_matrix_y,&Right_matrix_x,&Right_matrix_y); // input matrix dimensions are taken
+    scanf("%d %d %d",&Left_matrix_x,&Right_matrix_x,&Right_matrix_y); // input matrix dimensions are taken
+    Left_matrix_y=Right_matrix_x;
 
     int dim = fill(&Left_Vector_h, &Right_Vector_h, Left_matrix_x, Left_matrix_y, Right_matrix_x, Right_matrix_y); //fills the matrices with random values
 
@@ -191,7 +192,7 @@ int main(void)
     cudaEventRecord(start,0);
 
     //kernel call
-    multiply << < Grid_dim, Block_dim >> > (Left_Vector_d, Right_Vector_d, Res_d, dim);
+    multiply <<< Grid_dim, Block_dim >>> (Left_Vector_d, Right_Vector_d, Res_d, dim);
 
     //commented out the functions which helps to calculate time
     cudaEventRecord(stop,0);
@@ -223,10 +224,11 @@ int main(void)
     bool eqaul = true;
     for (int i=0;i< Left_matrix_x && eqaul;i++){
         for (int j = 0; j < Right_matrix_y && eqaul; j++) {
-            if (abs(Res_h[i*dim+j]-CPU[i*dim+j]) > 0.001)
+            if (abs(Res_h[i*dim+j]-CPU[i*dim+j]) > 1)
             {
                 eqaul = false;
                 printf("NOT EQUAL\n");
+                printf("ine: %f",(abs(Res_h[i*dim+j]-CPU[i*dim+j])));
             }
         }
     }
